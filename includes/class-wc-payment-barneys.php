@@ -6,6 +6,7 @@ use mervick\aesEverywhere\AES256;
 
 use OTPHP\TOTP;
 
+
 class WC_Gateway_Barneys extends WC_Payment_Gateway {
 
     /**
@@ -57,6 +58,7 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
 
         // Customer Emails.
         add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+        
 
     }
 
@@ -348,10 +350,53 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
      */
     public function process_payment( $order_id ) {
         $order = wc_get_order( $order_id );
-
+        
         if ( $order->get_total() > 0 ) {
-            // Mark as processing or on-hold (payment won't be taken until delivery).
             $this->barneys_payment_processing();
+            // if ('Error' !== $payment_URL) {
+            //         return array(
+            //             'result'   => 'success',
+            //             'redirect' => home_url('/complete-payment?order_id='.$order_id.'&payment_url=' . $payment_url)
+            //         );
+            // }
+            // Mark as processing or on-hold (payment won't be taken until delivery).
+            // $totp = $this->generateTOTP();
+            // $loginPayload = $this->login_payload();
+            // $encryptedKey = $this->aesencrypt($loginPayload, $totp);
+            // $login_result = $this->login_api_request($encryptedKey);
+            // if (isset($login_result['data'])) {
+            //     $paymentPayload = json_encode(array(
+            //         "personCode" => $login_result['data']['personCode'],
+            //         "walletCode" => $login_result['data']['walletCode'],
+            //         "transactionDetails" => array(
+            //             array(
+            //                 "paymentMethod"=> "GCSB",
+            //                 "paymentMethodID" => 131,
+            //                 "institutionAggregatorID" => 28644,
+            //                 "amount" => 1,
+            //                 "description" => "This is a test transaction",
+            //                 "email" => "evangeliojohnkevin@gmail.com",
+            //                 "firstName" => "John",
+            //                 "lastName" => "Kevin",
+            //                 "paymentCategoryID" => 3,
+            //                 "institutionID" => 36837,
+            //                 "aggregatorID" => 11
+            //             )
+            //         )
+            //     ));
+            //     $paymentAccessToken = $login_result['data']['accessToken'];
+            //     $paymentTotp = $this->generateTOTP($login_result['data']['secretKey']);
+            //     $paymentEncryptedKey = $this->aesencrypt($paymentPayload, $paymentTotp);
+            //     $payment_result = $this->gcash_payment_api_request($paymentEncryptedKey, $paymentAccessToken);
+            //     if (isset($payment_result['data'])) {
+            //         $payment_URL = $payment_result['data']['url'];
+            //         return array(
+            //             'result'   => 'success',
+            //             'redirect' => $payment_URL,
+            //         );
+            //     }
+            // }
+
         } else {
             $order->payment_complete();
         }
@@ -373,51 +418,59 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
         ));
         return $jsonData;
     }
-    private function barneys_payment_processing () {
 
+    private function barneys_payment_processing () {
         $totp = $this->generateTOTP();
         $loginPayload = $this->login_payload();
         $encryptedKey = $this->aesencrypt($loginPayload, $totp);
-        $login_result = $this->login_api_request($encryptedKey);
-        print_r($login_result);
+        $login_result = $this->login_api_request2($encryptedKey);
+        
         if (isset($login_result['data'])) {
-            $paymentPayload = json_encode(array(
-                "personCode" => $login_result['data']['personCode'],
-                "walletCode" => $login_result['data']['walletCode'],
-                "transactionDetails" => array(
-                    array(
-                        "paymentMethod"=> "GCSB",
-                        "paymentMethodID" => 131,
-                        "institutionAggregatorID" => 28644,
-                        "amount" => 1,
-                        "description" => "This is a test transaction",
-                        "email" => "evangeliojohnkevin@gmail.com",
-                        "firstName" => "John",
-                        "lastName" => "Kevin",
-                        "paymentCategoryID" => 3,
-                        "institutionID" => 36837,
-                        "aggregatorID" => 11
-                    )
-                )
+            $transactionPayload = json_encode(array(
+                "referenceNumber" => "DRT202406061486792"
             ));
             $paymentAccessToken = $login_result['data']['accessToken'];
+            echo $paymentAccessToken;
             $paymentTotp = $this->generateTOTP($login_result['data']['secretKey']);
-            $paymentEncryptedKey = $this->aesencrypt($paymentPayload, $paymentTotp);
-            $payment_result = $this->gcash_payment_api_request($paymentEncryptedKey, $paymentAccessToken);
-            if (isset($payment_result['data'])) {
-                // $url = $payment_result['data']['url'];
-
-                // Use the header function to send a Location header
-                // $this->gcash_actual_payment($url);
-                $url = "https://facebook.com";
-
-                // Use the header function to send a Location header
-                header("Location: $url");
-
-                // Ensure that the rest of the script doesn't execute
-                exit();
-            }
+            $paymentEncryptedKey = $this->aesencrypt($transactionPayload, $paymentTotp);
+            echo '\n'. $paymentEncryptedKey;
+            // $transactAPIURL = "https://sitapi2.traxionpay.com/api/v1/transactions/details/aggregator";
+            // $payment_result = $this->getAPIRequest($transactAPIURL, $paymentEncryptedKey, $paymentAccessToken);
+            // print_r($payment_result['data']);
         }
+        // if (isset($login_result['data'])) {
+        //     $paymentPayload = json_encode(array(
+        //         "personCode" => $login_result['data']['personCode'],
+        //         "walletCode" => $login_result['data']['walletCode'],
+        //         "transactionDetails" => array(
+        //             array(
+        //                 "paymentMethod"=> "GCSB",
+        //                 "paymentMethodID" => 131,
+        //                 "institutionAggregatorID" => 28644,
+        //                 "amount" => 1,
+        //                 "description" => "This is a test transaction",
+        //                 "email" => "evangeliojohnkevin@gmail.com",
+        //                 "firstName" => "John",
+        //                 "lastName" => "Kevin",
+        //                 "paymentCategoryID" => 3,
+        //                 "institutionID" => 36837,
+        //                 "aggregatorID" => 11
+        //             )
+        //         )
+        //     ));
+        //     $paymentAccessToken = $login_result['data']['accessToken'];
+        //     $paymentTotp = $this->generateTOTP($login_result['data']['secretKey']);
+        //     $paymentEncryptedKey = $this->aesencrypt($paymentPayload, $paymentTotp);
+        //     $payment_result = $this->gcash_payment_api_request($paymentEncryptedKey, $paymentAccessToken);
+        //     if (isset($payment_result['data'])) {
+        //         $payment_URL = $payment_result['data']['url'];
+        //         return $payment_URL;
+        //     } else {
+        //         return 'Error';
+        //     }
+        // }
+
+
 
 
         // if (isset($login_result['data']['accessToken'])) {
@@ -430,6 +483,7 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
         // add_action('woocommerce_checkout_order_processed', 'customize_checkout_error_message', 10);
         // $order->update_status( apply_filters( 'woocommerce_barneys_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'processing', $order ), __( 'Payment to be made upon delivery.', 'woocommerce' ) );
     }
+
     private function generateTOTP ($secret_key = null) {
         $algorithm = 'sha1'; // Assuming this.algorithm is 'sha1'
         $digits = 6; // Assuming this.digits is 6
@@ -446,6 +500,87 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
         // Encryption
         $encrypted = AES256::encrypt($jsonData, $encryptionKey);
         return $encrypted;
+    }
+    private function getAPIRequest ($url, $encryptedKey, $authToken) {
+        $endpoint_url = $url;  // Replace with the API URL
+        $payload = array(
+            'data' => $encryptedKey
+        );
+        $json_payload = json_encode($payload);
+        $args = array(
+            'method'      => 'POST',
+            'body'        => $json_payload,
+            'headers'     => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $authToken
+            ),
+            'timeout'     => 45,
+            'redirection' => 5,
+            'blocking'    => true,
+            'sslverify'   => false,  // Set to true in a production environment
+        );
+        $response = wp_remote_post($endpoint_url, $args);
+        $response_body = wp_remote_retrieve_body($response);
+        error_log('API Response: ' . $response_body);
+
+        // Try to decode the response body
+        $decoded_response = json_decode($response_body, true);
+
+        // Check for JSON errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $json_error = json_last_error_msg();
+            return "JSON decoding error: $json_error";
+        }
+        return $decoded_response;
+        // if (is_wp_error($response)) {
+        //     $error_message = $response->get_error_message();
+        //     echo "Something went wrong: $error_message";
+        // }
+        // if ( 200 != wp_remote_retrieve_response_code($response)) {
+        //     $error_message = $response->get_error_message();
+        //     return "Something went wrong: $error_message";
+        // }
+        // if ( 200 == wp_remote_retrieve_response_code($response)) {
+        //     $response_body = wp_remote_retrieve_body($response);
+
+        //     return json_decode($response_body, true);
+        // }
+
+    }
+    private function login_api_request2 ($encryptedKey) {
+        $endpoint_url = 'https://sitapi2.traxionpay.com/api/v1/auth/login/thirdparty';  // Replace with the API URL
+        $payload = array(
+            'data' => $encryptedKey
+        );
+
+        $json_payload = wp_json_encode($payload);
+
+        $args = array(
+            'method'      => 'POST',
+            'body'        => $json_payload,
+            'headers'     => array(
+                'Content-Type' => 'application/json',
+            ),
+            'timeout'     => 45,
+            'redirection' => 5,
+            'blocking'    => true,
+            'sslverify'   => false,  // Set to true in a production environment
+        );
+        $response = wp_remote_post($endpoint_url, $args);
+        // Check for errors
+        if (is_wp_error($response)) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        }
+        if ( 200 != wp_remote_retrieve_response_code($response)) {
+            $error_message = $response->get_error_message();
+            return "Something went wrong: $error_message";
+        }
+        if ( 200 == wp_remote_retrieve_response_code($response)) {
+            $response_body = wp_remote_retrieve_body($response);
+            return json_decode($response_body, true);
+        }
+
     }
     private function login_api_request ($encryptedKey) {
         $url = 'https://sitapi2.traxionpay.com/api/v1/auth/login/thirdparty';  // Replace with the API URL
@@ -471,13 +606,46 @@ class WC_Gateway_Barneys extends WC_Payment_Gateway {
         }
         curl_close($ch);
     }
+    private function gcash_payment_api_request2 ($encryptedKey, $authToken) {
+        $endpoint_url = 'https://sitapi2.traxionpay.com/api/v1/transactions/external/funds/cash-in/gcash';  // Replace with the API URL
+        $payload = array(
+            'data' => $encryptedKey
+        );
+
+        $json_payload = wp_json_encode($payload);
+        $args = array(
+            'method'      => 'POST',
+            'body'        => $json_payload,
+            'headers'     => array(
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $authToken
+            ),
+            'timeout'     => 45,
+            'redirection' => 5,
+            'blocking'    => true,
+            'sslverify'   => true,  // Set to true in a production environment
+        );
+        $response = wp_remote_post($endpoint_url, $args);
+        // Check for errors
+        if (is_wp_error($response)) {
+            $error_message = $response->get_error_message();
+            echo "Something went wrong: $error_message";
+        }
+        if ( 200 != wp_remote_retrieve_response_code($response)) {
+            $error_message = $response->get_error_message();
+            return "Something went wrong: $error_message";
+        }
+        if ( 200 == wp_remote_retrieve_response_code($response)) {
+            $response_body = wp_remote_retrieve_body($response);
+            return json_decode($response_body, true);
+        }
+    }
     private function gcash_payment_api_request ($encryptedKey, $authToken) {
         $url = 'https://sitapi2.traxionpay.com/api/v1/transactions/external/funds/cash-in/gcash';  // Replace with the API URL
         $data = array(
             'data' => $encryptedKey
         );
         $payload = json_encode($data);
-        echo $payload;
         $ch = curl_init($url);
         
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

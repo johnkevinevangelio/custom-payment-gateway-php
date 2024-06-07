@@ -6,10 +6,8 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'phpseclib3\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
     'mervick\\aesEverywhere\\tests\\' => array($vendorDir . '/mervick/aes-everywhere/php/tests'),
     'mervick\\aesEverywhere\\' => array($vendorDir . '/mervick/aes-everywhere/php/src'),
-    'lfkeitel\\phptotp\\' => array($vendorDir . '/lfkeitel/phptotp/src'),
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),
     'OTPHP\\' => array($vendorDir . '/spomky-labs/otphp/src'),
 );

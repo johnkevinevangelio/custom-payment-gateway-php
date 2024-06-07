@@ -12,8 +12,7 @@ function barneys_description ($description, $payment_id) {
         return $description;
     }
     ob_start();
-
-    echo 'test';
+    
     $description .= ob_get_clean();
 
     return $description;

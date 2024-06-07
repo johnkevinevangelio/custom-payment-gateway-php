@@ -4,25 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita702940bbf24a822224611db5c22942b
+class ComposerStaticInit2c57e264be1581eeecfd6aa2c0acbb78
 {
-    public static $files = array (
-        'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
-    );
-
     public static $prefixLengthsPsr4 = array (
-        'p' => 
-        array (
-            'phpseclib3\\' => 11,
-        ),
         'm' => 
         array (
             'mervick\\aesEverywhere\\tests\\' => 28,
             'mervick\\aesEverywhere\\' => 22,
-        ),
-        'l' => 
-        array (
-            'lfkeitel\\phptotp\\' => 17,
         ),
         'P' => 
         array (
@@ -35,10 +23,6 @@ class ComposerStaticInita702940bbf24a822224611db5c22942b
     );
 
     public static $prefixDirsPsr4 = array (
-        'phpseclib3\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
-        ),
         'mervick\\aesEverywhere\\tests\\' => 
         array (
             0 => __DIR__ . '/..' . '/mervick/aes-everywhere/php/tests',
@@ -46,10 +30,6 @@ class ComposerStaticInita702940bbf24a822224611db5c22942b
         'mervick\\aesEverywhere\\' => 
         array (
             0 => __DIR__ . '/..' . '/mervick/aes-everywhere/php/src',
-        ),
-        'lfkeitel\\phptotp\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/lfkeitel/phptotp/src',
         ),
         'ParagonIE\\ConstantTime\\' => 
         array (
@@ -68,9 +48,9 @@ class ComposerStaticInita702940bbf24a822224611db5c22942b
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita702940bbf24a822224611db5c22942b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita702940bbf24a822224611db5c22942b::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInita702940bbf24a822224611db5c22942b::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2c57e264be1581eeecfd6aa2c0acbb78::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2c57e264be1581eeecfd6aa2c0acbb78::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit2c57e264be1581eeecfd6aa2c0acbb78::$classMap;
 
         }, null, ClassLoader::class);
     }
